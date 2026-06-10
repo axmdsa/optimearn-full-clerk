@@ -53,6 +53,7 @@ const trpcClient = trpc.createClient({
 });
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+console.log("Clerk Publishable Key:", clerkPublishableKey);
 
 createRoot(document.getElementById("root")!).render(
   <ClerkProvider publishableKey={clerkPublishableKey}>
