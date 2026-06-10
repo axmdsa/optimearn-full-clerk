@@ -48,8 +48,14 @@ function Router() {
     <Switch>
       {/* Public */}
       <Route path="/" component={Home} />
-      <Route path="/auth/sign-in" component={SignInPage} />
-      <Route path="/auth/sign-up" component={SignUpPage} />
+      {/* Clerk Auth - Use nested routing support */}
+      <Route path="/auth/sign-in/:any*">
+        <SignInPage />
+      </Route>
+      <Route path="/auth/sign-up/:any*">
+        <SignUpPage />
+      </Route>
+      
       {/* Authenticated user pages */}
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/missions" component={Missions} />
