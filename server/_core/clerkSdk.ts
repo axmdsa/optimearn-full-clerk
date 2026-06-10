@@ -23,9 +23,11 @@ function getClerkToken(req: VercelRequest): string | null {
  */
 async function verifyClerkToken(token: string): Promise<any> {
   try {
+    console.log("[Clerk] Verifying token...");
     const decoded = await verifyToken(token, {
       secretKey: ENV.clerkSecretKey,
     });
+    console.log("[Clerk] Token verified for user:", decoded.sub);
     return decoded;
   } catch (error) {
     console.error("[Clerk] Token verification failed:", error);
@@ -39,11 +41,13 @@ async function verifyClerkToken(token: string): Promise<any> {
 export async function authenticateRequest(req: VercelRequest): Promise<AuthenticatedUser | null> {
   const token = getClerkToken(req);
   if (!token) {
+    console.log("[Auth] No token found in request");
     return null;
   }
 
   const clerkUser = await verifyClerkToken(token);
   if (!clerkUser) {
+    console.log("[Auth] Clerk user verification failed");
     return null;
   }
 
@@ -52,32 +56,42 @@ export async function authenticateRequest(req: VercelRequest): Promise<Authentic
   const email = clerkUser.email || null;
   const name = clerkUser.given_name || clerkUser.name || null;
 
-  // Sync user to database if not exists
-  const existingUser = await db.getUserByOpenId(clerkUserId);
-  if (!existingUser) {
-    await db.upsertUser({
-      openId: clerkUserId,
-      email,
-      name,
-      loginMethod: "clerk",
-      lastSignedIn: new Date(),
-      ipAddress: getClientIp(req),
-      country: null,
-    });
-  }
+  try {
+    // Sync user to database if not exists
+    console.log("[Auth] Syncing user to DB:", clerkUserId);
+    const existingUser = await db.getUserByOpenId(clerkUserId);
+    if (!existingUser) {
+      console.log("[Auth] Creating new user in DB");
+      await db.upsertUser({
+        openId: clerkUserId,
+        email,
+        name,
+        loginMethod: "clerk",
+        lastSignedIn: new Date(),
+        ipAddress: getClientIp(req),
+        country: null,
+      });
+    }
 
-  // Fetch the user from database
-  const user = await db.getUserByOpenId(clerkUserId);
-  if (!user) {
-    throw new Error("Failed to sync user to database");
-  }
+    // Fetch the user from database
+    const user = await db.getUserByOpenId(clerkUserId);
+    if (!user) {
+      console.error("[Auth] Failed to fetch user from DB after sync");
+      return null;
+    }
 
-  // Check if user is banned
-  if (user.isBanned) {
-    throw new Error(`User is banned: ${user.banReason || "No reason provided"}`);
-  }
+    // Check if user is banned
+    if (user.isBanned) {
+      console.warn("[Auth] Banned user attempted login:", user.id);
+      throw new Error(`User is banned: ${user.banReason || "No reason provided"}`);
+    }
 
-  return user;
+    console.log("[Auth] Successfully authenticated user:", user.id);
+    return user;
+  } catch (error) {
+    console.error("[Auth] Database error during authentication:", error);
+    return null;
+  }
 }
 
 /**

@@ -34,16 +34,25 @@ export function useAuth(options?: UseAuthOptions) {
 
   const state = useMemo(() => {
     if (meQuery.data) {
+      console.log("[useAuth] App user data loaded:", meQuery.data.id);
       localStorage.setItem(
         "manus-runtime-user-info",
         JSON.stringify(meQuery.data)
       );
     }
+    
+    const loading = !clerkLoaded || (isSignedIn && meQuery.isLoading);
+    const isAuthenticated = isSignedIn && Boolean(meQuery.data);
+    
+    if (clerkLoaded) {
+      console.log("[useAuth] State check:", { isSignedIn, hasDbUser: !!meQuery.data, loading, isAuthenticated });
+    }
+
     return {
       user: meQuery.data ?? null,
-      loading: !clerkLoaded || (isSignedIn && meQuery.isLoading),
+      loading,
       error: meQuery.error ?? null,
-      isAuthenticated: isSignedIn && Boolean(meQuery.data),
+      isAuthenticated,
     };
   }, [
     meQuery.data,
@@ -56,6 +65,7 @@ export function useAuth(options?: UseAuthOptions) {
   // Show error notification for ban or other auth errors
   useEffect(() => {
     if (!meQuery.error) return;
+    console.error("[useAuth] meQuery error:", meQuery.error);
     let errorMessage = meQuery.error?.message || '';
     if (!errorMessage && (meQuery.error as any)?.data?.message) {
       errorMessage = (meQuery.error as any).data.message;
@@ -73,9 +83,13 @@ export function useAuth(options?: UseAuthOptions) {
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;
     if (!clerkLoaded) return;
-    if (isSignedIn && (meQuery.isLoading || meQuery.data)) return;
-    if (!isSignedIn) {
+    
+    // Wait for everything to settle
+    if (isSignedIn && meQuery.isLoading) return;
+    
+    if (!isSignedIn || (!meQuery.isLoading && !meQuery.data)) {
       if (typeof window !== "undefined" && window.location.pathname !== redirectPath) {
+        console.log("[useAuth] Redirecting to sign-in. Reason:", !isSignedIn ? "Not signed into Clerk" : "No DB user found");
         window.location.href = redirectPath;
       }
     }
