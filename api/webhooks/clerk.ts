@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { Webhook } from "svix";
-import { handleClerkWebhook } from "../../server/_core/clerkSdk";
-import { ENV } from "../../server/_core/env";
+import { handleClerkWebhook } from "../../server/_core/clerkSdk.js";
+import { ENV } from "../../server/_core/env.js";
 
 export default async function handler(
   req: VercelRequest,

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
-import { getDb } from "../../server/db";
-import { offerCompletions, affiliateNetworks, users, userPointsHistory, postbackAuditLogs } from "../../drizzle/schema";
+import { getDb } from "../../server/db.js";
+import { offerCompletions, affiliateNetworks, users, userPointsHistory, postbackAuditLogs } from "../../drizzle/schema.js";
 import { eq, sql } from "drizzle-orm";
 
 /**

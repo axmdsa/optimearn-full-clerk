@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { nodeHTTPRequestHandler } from "@trpc/server/adapters/node-http";
-import { appRouter } from "../server/routers";
-import { createContextServerless } from "../server/_core/context";
+import { appRouter } from "../server/routers.js";
+import { createContextServerless } from "../server/_core/context.js";
 
 export default async function handler(
   req: VercelRequest,

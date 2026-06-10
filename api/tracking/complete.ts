@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { recordOfferCompletion, createPostback, getTrackingConfig } from "../../server/db";
+import { recordOfferCompletion, createPostback, getTrackingConfig } from "../../server/db.js";
 import { v4 as uuidv4 } from "uuid";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
