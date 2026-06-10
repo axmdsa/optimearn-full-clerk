@@ -118,7 +118,8 @@
     "onlyBuiltDependencies": [
       "@clerk/shared",
       "@tailwindcss/oxide",
-      "rebuild"
+      "rebuild",
+      "esbuild"
     ]
   }
 }
