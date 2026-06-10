@@ -8,12 +8,12 @@ export default async function handler(
   res: VercelResponse
 ) {
   return nodeHTTPRequestHandler({
-    req,
-    res,
+    req: req as any,
+    res: res as any,
     router: appRouter,
     createContext: async () => {
       return createContextServerless(req, res);
     },
-    path: req.query.trpc as string || "",
+    path: (req.query.trpc as string) || "",
   });
 }
