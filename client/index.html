@@ -15,10 +15,20 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT:https://analytics.example.com%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID:none%"></script>
+    <script>
+      // Only load analytics if the environment variables are set
+      const endpoint = "%VITE_ANALYTICS_ENDPOINT%";
+      const websiteId = "%VITE_ANALYTICS_WEBSITE_ID%";
+      
+      if (endpoint && websiteId && !endpoint.includes("VITE_ANALYTICS_ENDPOINT")) {
+        const script = document.createElement("script");
+        script.async = true;
+        script.defer = true;
+        script.src = `${endpoint}/umami`;
+        script.setAttribute("data-website-id", websiteId);
+        document.head.appendChild(script);
+      }
+    </script>
   </body>
 
 </html>
