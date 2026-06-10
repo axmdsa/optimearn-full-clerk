@@ -1,8 +1,8 @@
-import { getLoginUrl } from "@/const";
+import { useAuth as useClerkHook, useUser } from "@clerk/react";
 import { trpc } from "@/lib/trpc";
-import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
@@ -10,55 +10,47 @@ type UseAuthOptions = {
 };
 
 export function useAuth(options?: UseAuthOptions) {
-  const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
-    options ?? {};
+  const { redirectOnUnauthenticated = false, redirectPath = "/auth/sign-in" } = options ?? {};
+  const { isSignedIn, isLoaded: clerkLoaded, signOut } = useClerkHook();
+  const { user: clerkUser } = useUser();
   const utils = trpc.useUtils();
 
+  // Fetch the app user from the database
   const meQuery = trpc.auth.me.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
-  });
-
-  const logoutMutation = trpc.auth.logout.useMutation({
-    onSuccess: () => {
-      utils.auth.me.setData(undefined, null);
-    },
+    enabled: isSignedIn && clerkLoaded,
   });
 
   const logout = useCallback(async () => {
     try {
-      await logoutMutation.mutateAsync();
-    } catch (error: unknown) {
-      if (
-        error instanceof TRPCClientError &&
-        error.data?.code === "UNAUTHORIZED"
-      ) {
-        return;
-      }
-      throw error;
-    } finally {
+      await signOut();
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
+    } catch (error: unknown) {
+      console.error("Logout error:", error);
     }
-  }, [logoutMutation, utils]);
+  }, [signOut, utils]);
 
   const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
+    if (meQuery.data) {
+      localStorage.setItem(
+        "manus-runtime-user-info",
+        JSON.stringify(meQuery.data)
+      );
+    }
     return {
       user: meQuery.data ?? null,
-      loading: meQuery.isLoading || logoutMutation.isPending,
-      error: meQuery.error ?? logoutMutation.error ?? null,
-      isAuthenticated: Boolean(meQuery.data),
+      loading: !clerkLoaded || (isSignedIn && meQuery.isLoading),
+      error: meQuery.error ?? null,
+      isAuthenticated: isSignedIn && Boolean(meQuery.data),
     };
   }, [
     meQuery.data,
     meQuery.error,
     meQuery.isLoading,
-    logoutMutation.error,
-    logoutMutation.isPending,
+    isSignedIn,
+    clerkLoaded,
   ]);
 
   // Show error notification for ban or other auth errors
@@ -71,26 +63,29 @@ export function useAuth(options?: UseAuthOptions) {
     if (!errorMessage) {
       errorMessage = String(meQuery.error);
     }
-    
+
     if (errorMessage.toLowerCase().includes('banned')) {
       toast.error(errorMessage, { duration: 7000 });
     }
   }, [meQuery.error]);
 
+  // Redirect unauthenticated users
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;
-    if (meQuery.isLoading || logoutMutation.isPending) return;
-    if (state.user) return;
-    if (typeof window === "undefined") return;
-    if (window.location.pathname === redirectPath) return;
-
-    window.location.href = redirectPath
+    if (!clerkLoaded) return;
+    if (isSignedIn && (meQuery.isLoading || meQuery.data)) return;
+    if (!isSignedIn) {
+      if (typeof window !== "undefined" && window.location.pathname !== redirectPath) {
+        window.location.href = redirectPath;
+      }
+    }
   }, [
     redirectOnUnauthenticated,
     redirectPath,
-    logoutMutation.isPending,
+    isSignedIn,
+    clerkLoaded,
     meQuery.isLoading,
-    state.user,
+    meQuery.data
   ]);
 
   return {
