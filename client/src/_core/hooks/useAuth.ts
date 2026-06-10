@@ -1,8 +1,7 @@
 import { useAuth as useClerkHook, useUser } from "@clerk/react";
 import { trpc } from "@/lib/trpc";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { TRPCClientError } from "@trpc/client";
 
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
@@ -14,10 +13,11 @@ export function useAuth(options?: UseAuthOptions) {
   const { isSignedIn, isLoaded: clerkLoaded, signOut } = useClerkHook();
   const { user: clerkUser } = useUser();
   const utils = trpc.useUtils();
+  const [redirectCount, setRedirectCount] = useState(0);
 
   // Fetch the app user from the database
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: false,
+    retry: 1,
     refetchOnWindowFocus: false,
     enabled: isSignedIn && clerkLoaded,
   });
@@ -33,19 +33,17 @@ export function useAuth(options?: UseAuthOptions) {
   }, [signOut, utils]);
 
   const state = useMemo(() => {
-    if (meQuery.data) {
-      console.log("[useAuth] App user data loaded:", meQuery.data.id);
-      localStorage.setItem(
-        "manus-runtime-user-info",
-        JSON.stringify(meQuery.data)
-      );
-    }
-    
     const loading = !clerkLoaded || (isSignedIn && meQuery.isLoading);
     const isAuthenticated = isSignedIn && Boolean(meQuery.data);
     
     if (clerkLoaded) {
-      console.log("[useAuth] State check:", { isSignedIn, hasDbUser: !!meQuery.data, loading, isAuthenticated });
+      console.log("[useAuth] State check:", { 
+        isSignedIn, 
+        hasDbUser: !!meQuery.data, 
+        loading, 
+        isAuthenticated,
+        dbError: meQuery.error?.message 
+      });
     }
 
     return {
@@ -62,34 +60,43 @@ export function useAuth(options?: UseAuthOptions) {
     clerkLoaded,
   ]);
 
-  // Show error notification for ban or other auth errors
+  // Show error notification
   useEffect(() => {
     if (!meQuery.error) return;
-    console.error("[useAuth] meQuery error:", meQuery.error);
-    let errorMessage = meQuery.error?.message || '';
-    if (!errorMessage && (meQuery.error as any)?.data?.message) {
-      errorMessage = (meQuery.error as any).data.message;
-    }
-    if (!errorMessage) {
-      errorMessage = String(meQuery.error);
-    }
-
-    if (errorMessage.toLowerCase().includes('banned')) {
-      toast.error(errorMessage, { duration: 7000 });
+    
+    const errorMessage = meQuery.error.message || "Authentication failed";
+    console.error("[useAuth] Backend error:", meQuery.error);
+    
+    // If it's a database connection error, show a persistent toast
+    if (errorMessage.toLowerCase().includes("database") || errorMessage.toLowerCase().includes("connection")) {
+      toast.error("Database connection failed. Please check your DATABASE_URL in Vercel.", {
+        id: "db-error",
+        duration: 10000
+      });
+    } else {
+      toast.error(errorMessage);
     }
   }, [meQuery.error]);
 
-  // Redirect unauthenticated users
+  // Redirect unauthenticated users with loop protection
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;
     if (!clerkLoaded) return;
-    
-    // Wait for everything to settle
     if (isSignedIn && meQuery.isLoading) return;
     
-    if (!isSignedIn || (!meQuery.isLoading && !meQuery.data)) {
-      if (typeof window !== "undefined" && window.location.pathname !== redirectPath) {
-        console.log("[useAuth] Redirecting to sign-in. Reason:", !isSignedIn ? "Not signed into Clerk" : "No DB user found");
+    // Stop if we've redirected too many times in one session
+    if (redirectCount > 2) {
+      console.error("[useAuth] Redirect loop detected. Stopping.");
+      return;
+    }
+
+    const needsRedirect = !isSignedIn || (!meQuery.isLoading && !meQuery.data);
+    
+    if (needsRedirect) {
+      const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+      if (currentPath !== redirectPath) {
+        console.log("[useAuth] Redirecting to:", redirectPath, "Reason:", !isSignedIn ? "Not signed into Clerk" : "No DB user");
+        setRedirectCount(prev => prev + 1);
         window.location.href = redirectPath;
       }
     }
@@ -99,7 +106,8 @@ export function useAuth(options?: UseAuthOptions) {
     isSignedIn,
     clerkLoaded,
     meQuery.isLoading,
-    meQuery.data
+    meQuery.data,
+    redirectCount
   ]);
 
   return {
