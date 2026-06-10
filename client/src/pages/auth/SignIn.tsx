@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/react";
+import { dark } from "@clerk/themes";
 import { useLocation } from "wouter";
 
 export default function SignInPage() {
@@ -11,7 +12,7 @@ export default function SignInPage() {
           afterSignInUrl="/dashboard"
           signUpUrl="/auth/sign-up"
           appearance={{
-            baseTheme: undefined,
+            baseTheme: dark,
             elements: {
               formButtonPrimary:
                 "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors",
