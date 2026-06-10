@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` MODIFY COLUMN `category` enum('survey','video','app_trial','offer','app_install','daily','social','play_to_earn') NOT NULL;

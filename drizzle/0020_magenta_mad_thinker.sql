@@ -1,0 +1,21 @@
+CREATE TABLE `postback_audit_logs` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`affiliateNetworkId` int NOT NULL,
+	`completionId` varchar(255) NOT NULL,
+	`rawPayload` text NOT NULL,
+	`payloadFormat` enum('url_encoded','json','query_params') NOT NULL,
+	`signatureProvided` text,
+	`signatureValid` boolean NOT NULL,
+	`signatureError` text,
+	`parsedData` text,
+	`macroMappingUsed` text,
+	`extractedStatus` enum('pending','approved','rejected') NOT NULL,
+	`extractedPayout` decimal(10,2),
+	`httpMethod` varchar(10) NOT NULL,
+	`sourceIp` varchar(45),
+	`userAgent` text,
+	`processingStatus` enum('success','failed','pending') NOT NULL DEFAULT 'pending',
+	`processingError` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `postback_audit_logs_id` PRIMARY KEY(`id`)
+);

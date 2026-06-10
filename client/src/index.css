@@ -1,0 +1,355 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* ─── Radius ─────────────────────────────────────────────── */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius: 0.625rem;
+
+  /* ─── Freecash-Matched Color Palette ─────────────────────── */
+  /*
+   * Freecash uses a deep navy-indigo dark theme:
+   *   Page bg:    #14152a  (deep navy-black)
+   *   Card bg:    #1c1e35  (navy card)
+   *   Sidebar:    #181a30  (dark navy sidebar)
+   *   Elevated:   #22253e  (raised surface)
+   *   Border:     #2a2d4a  (subtle navy border)
+   *   Primary:    #00e676  (bright green CTA)
+   *   Text:       #e8eaf0  (near-white)
+   *   Muted text: #8b90b0  (muted blue-grey)
+   */
+
+  /* Page background — deep navy */
+  --color-background:           oklch(0.13 0.030 265);
+  --color-foreground:           oklch(0.93 0.010 255);
+
+  /* Card surface — slightly lighter navy */
+  --color-card:                 oklch(0.16 0.032 265);
+  --color-card-foreground:      oklch(0.93 0.010 255);
+
+  /* Popover — raised surface */
+  --color-popover:              oklch(0.19 0.030 265);
+  --color-popover-foreground:   oklch(0.93 0.010 255);
+
+  /* Primary — Freecash bright green */
+  --color-primary:              oklch(0.82 0.22 145);
+  --color-primary-foreground:   oklch(0.10 0.010 265);
+
+  /* Secondary — elevated card surface */
+  --color-secondary:            oklch(0.20 0.028 265);
+  --color-secondary-foreground: oklch(0.75 0.015 255);
+
+  /* Muted — subtle blue-grey */
+  --color-muted:                oklch(0.21 0.025 265);
+  --color-muted-foreground:     oklch(0.58 0.020 255);
+
+  /* Accent — yellow-green for highlights */
+  --color-accent:               oklch(0.84 0.20 100);
+  --color-accent-foreground:    oklch(0.10 0.010 265);
+
+  /* Destructive */
+  --color-destructive:          oklch(0.60 0.22 25);
+  --color-destructive-foreground: oklch(0.97 0.005 255);
+
+  /* Border / Input / Ring */
+  --color-border:               oklch(0.24 0.025 265);
+  --color-input:                oklch(0.20 0.028 265);
+  --color-ring:                 oklch(0.82 0.22 145);
+
+  /* Chart colors */
+  --color-chart-1:              oklch(0.82 0.22 145);
+  --color-chart-2:              oklch(0.65 0.18 200);
+  --color-chart-3:              oklch(0.75 0.20 60);
+  --color-chart-4:              oklch(0.60 0.22 300);
+  --color-chart-5:              oklch(0.65 0.20 25);
+
+  /* Sidebar — darkest navy layer */
+  --color-sidebar:              oklch(0.14 0.030 265);
+  --color-sidebar-foreground:   oklch(0.75 0.015 255);
+  --color-sidebar-primary:      oklch(0.82 0.22 145);
+  --color-sidebar-primary-foreground: oklch(0.10 0.010 265);
+  --color-sidebar-accent:       oklch(0.19 0.028 265);
+  --color-sidebar-accent-foreground: oklch(0.93 0.010 255);
+  --color-sidebar-border:       oklch(0.20 0.025 265);
+  --color-sidebar-ring:         oklch(0.82 0.22 145);
+
+  /* Typography — CrazyCash-style bold geometric sans-serif */
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Poppins', 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ─── Base Resets ────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* ─── Custom Utilities ───────────────────────────────────────── */
+@layer utilities {
+  /* Glow effects */
+  .glow-green {
+    box-shadow: 0 0 20px oklch(0.82 0.22 145 / 0.35), 0 0 40px oklch(0.82 0.22 145 / 0.15);
+  }
+  .glow-green-sm {
+    box-shadow: 0 0 8px oklch(0.82 0.22 145 / 0.40);
+  }
+  .text-glow-green {
+    text-shadow: 0 0 20px oklch(0.82 0.22 145 / 0.60);
+  }
+  .glow-yellow {
+    box-shadow: 0 0 16px oklch(0.84 0.20 100 / 0.40);
+  }
+  .glow-yellow-neon {
+    box-shadow: inset 0 0 8px oklch(0.84 0.20 100 / 0.15);
+  }
+  .glow-yellow-orange-light {
+    box-shadow: inset 0 0 8px oklch(0.82 0.18 70 / 0.15);
+  }
+  .glow-orange-dark-neon {
+    box-shadow: inset 0 0 8px oklch(0.62 0.22 35 / 0.15);
+  }
+  .glow-orange-neon {
+    box-shadow: inset 0 0 8px oklch(0.60 0.25 30 / 0.15);
+  }
+  .glow-yellow-light-neon {
+    box-shadow: inset 0 0 8px oklch(0.88 0.18 95 / 0.15);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, oklch(0.82 0.22 145), oklch(0.84 0.20 100));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gradient-text-blue {
+    background: linear-gradient(135deg, oklch(0.65 0.18 220), oklch(0.82 0.22 145));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Card surfaces — Freecash navy style */
+  .card-glass {
+    background: oklch(0.16 0.032 265 / 0.90);
+    backdrop-filter: blur(12px);
+    border: 1px solid oklch(0.24 0.025 265);
+  }
+  .card-glow-border {
+    border: 1px solid oklch(0.82 0.22 145 / 0.30);
+    box-shadow: 0 0 20px oklch(0.82 0.22 145 / 0.08), inset 0 1px 0 oklch(0.82 0.22 145 / 0.10);
+  }
+
+  /* Sidebar active item */
+  .sidebar-item-active {
+    background: linear-gradient(90deg, oklch(0.82 0.22 145 / 0.20), oklch(0.82 0.22 145 / 0.05));
+    border-left: 2px solid oklch(0.82 0.22 145);
+    color: oklch(0.82 0.22 145);
+  }
+
+  /* Freecash-style elevated card */
+  .fc-card {
+    background: oklch(0.16 0.032 265);
+    border: 1px solid oklch(0.24 0.025 265);
+    border-radius: 0.875rem;
+  }
+  .fc-card-elevated {
+    background: oklch(0.19 0.030 265);
+    border: 1px solid oklch(0.26 0.025 265);
+    border-radius: 0.875rem;
+  }
+
+  /* Scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.26 0.025 265) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: oklch(0.26 0.025 265);
+    border-radius: 2px;
+  }
+
+  /* Hero gradient — Freecash style (deep navy with subtle green glow) */
+  .hero-gradient {
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.82 0.22 145 / 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 50%, oklch(0.65 0.18 220 / 0.06) 0%, transparent 50%),
+                oklch(0.13 0.030 265);
+  }
+
+  /* Badge variants */
+  .badge-daily    { @apply bg-blue-500/20 text-blue-400 border border-blue-500/30; }
+  .badge-once     { @apply bg-orange-500/20 text-orange-400 border border-orange-500/30; }
+  .badge-offer    { @apply bg-purple-500/20 text-purple-400 border border-purple-500/30; }
+  .badge-survey   { @apply bg-cyan-500/20 text-cyan-400 border border-cyan-500/30; }
+  .badge-video    { @apply bg-pink-500/20 text-pink-400 border border-pink-500/30; }
+
+  /* Spin wheel */
+  .spin-shadow {
+    box-shadow: 0 0 60px oklch(0.82 0.22 145 / 0.30), 0 0 120px oklch(0.82 0.22 145 / 0.10);
+  }
+
+  /* Number ticker */
+  .ticker-value {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+/* ─── Container ──────────────────────────────────────────────── */
+@layer components {
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8;
+    max-width: 1280px;
+  }
+}
+
+/* ─── Animations ─────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px oklch(0.82 0.22 145 / 0.30); }
+  50%       { box-shadow: 0 0 40px oklch(0.82 0.22 145 / 0.60); }
+}
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes spin-in {
+  from { opacity: 0; transform: scale(0.95) rotate(-5deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes carousel-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% + 100vw)); }
+}
+@keyframes carousel-scroll-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-float         { animation: float 3s ease-in-out infinite; }
+.animate-pulse-glow    { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-ticker-scroll { animation: ticker-scroll 30s linear infinite; }
+.animate-spin-in       { animation: spin-in 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+.animate-slide-right   { animation: slide-in-right 0.25s cubic-bezier(0.23, 1, 0.32, 1); }
+.animate-count-up      { animation: count-up 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+.animate-carousel      { animation: carousel-scroll 20s linear infinite; }
+.animate-carousel-left { animation: carousel-scroll-left 20s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-carousel { animation: none; }
+  .animate-carousel-left { animation: none; }
+}
+
+/* ─── Flex min-size fix ──────────────────────────────────────── */
+.flex { min-width: 0; min-height: 0; }
+
+
+/* Hide scrollbar for horizontal scroll containers */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* Enhanced Sidebar Animation */
+@media (prefers-reduced-motion: no-preference) {
+  aside {
+    will-change: transform;
+  }
+
+  /* Smooth slide-in animation for sidebar */
+  @keyframes slideInFromLeft {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutToLeft {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes backdropFadeIn {
+    from {
+      backdrop-filter: blur(0px);
+      background-color: rgba(0, 0, 0, 0);
+    }
+    to {
+      backdrop-filter: blur(4px);
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  @keyframes backdropFadeOut {
+    from {
+      backdrop-filter: blur(4px);
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    to {
+      backdrop-filter: blur(0px);
+      background-color: rgba(0, 0, 0, 0);
+    }
+  }
+}
+
+/* Glass shine animation for profile card */
+@keyframes glass-shine {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    border-color: rgba(34, 197, 94, 0.5);
+  }
+}

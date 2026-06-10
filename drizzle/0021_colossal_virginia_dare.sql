@@ -1,0 +1,1 @@
+ALTER TABLE `offer_completions` ADD `sessionUuid` varchar(255);

@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `isTrending` boolean DEFAULT false NOT NULL;

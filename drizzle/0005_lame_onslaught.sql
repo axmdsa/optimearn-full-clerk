@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `isFeatured` boolean DEFAULT false NOT NULL;

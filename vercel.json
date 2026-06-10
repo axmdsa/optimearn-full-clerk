@@ -1,0 +1,48 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/public",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "rewrites": [
+    {
+      "source": "/api/trpc/:path*",
+      "destination": "/api/trpc"
+    },
+    {
+      "source": "/api/oauth/callback",
+      "destination": "/api/oauth/callback"
+    },
+    {
+      "source": "/api/tracking/click",
+      "destination": "/api/tracking/click"
+    },
+    {
+      "source": "/api/tracking/complete",
+      "destination": "/api/tracking/complete"
+    },
+    {
+      "source": "/api/webhooks/postback",
+      "destination": "/api/webhooks/postback"
+    },
+    {
+      "source": "/manus-storage/:path*",
+      "destination": "/api/manus-storage/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
